@@ -17,6 +17,21 @@ are additional requirements specific to CX Platform projects.
 base-constitution.md + frontend/base-constitution.md + frontend-platform/base-constitution.md
 ```
 
+## Core Principles
+
+### Semantic HTML
+HTML MUST use semantic elements (`header`, `nav`, `main`, `section`, `article`,
+`aside`, `footer`) wherever they apply. Non-semantic containers (`div`, `span`)
+MUST only be used when no semantic alternative exists. Heading tags (`h1`–`h6`)
+MUST follow a logical hierarchy; every page MUST have exactly one `h1`. Elements
+SHOULD have at least one class to describe their purpose, even when no styling
+is applied.
+
+Rationale: semantic HTML improves accessibility for assistive technologies,
+boosts SEO through clearer content structure, and makes the markup self-
+documenting for developers. Proper heading hierarchy is critical for screen
+reader navigation.
+
 ## Design System Integration
 
 ### Component Usage

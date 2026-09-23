@@ -66,19 +66,6 @@ Rationale: a predictable component structure makes the codebase navigable and
 maintainable. Clear naming conventions for props, events, and state reduce
 integration errors and make component interfaces self-documenting.
 
-### Semantic HTML
-HTML MUST use semantic elements (`header`, `nav`, `main`, `section`, `article`,
-`aside`, `footer`) wherever they apply. Non-semantic containers (`div`, `span`)
-MUST only be used when no semantic alternative exists. Heading tags (`h1`–`h6`)
-MUST follow a logical hierarchy; every page MUST have exactly one `h1`. Elements
-SHOULD have at least one class to describe their purpose, even when no styling
-is applied.
-
-Rationale: semantic HTML improves accessibility for assistive technologies,
-boosts SEO through clearer content structure, and makes the markup self-
-documenting for developers. Proper heading hierarchy is critical for screen
-reader navigation.
-
 ### Styling Standards
 Inline styles MUST NOT be used; all styles MUST be centralized in external
 stylesheets or scoped component styles. CSS selectors MUST use classes only; IDs
