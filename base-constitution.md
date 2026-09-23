@@ -43,17 +43,52 @@ Rationale: consumers depend on stable contracts; explicit versioning and
 deprecation give them a predictable path to adapt without outages.
 
 ### Specification Traceability
-Every engineering spec MUST derive from an approved product spec and MUST link
-back to it through a stable reference (ID or URL). The product spec MUST exist
-before its engineering spec is created. A technical architecture document SHOULD
+Every engineering spec MUST derive from exactly one approved product spec and
+MUST reference it through an immutable, pinned version (commit or tag) — a
+mutable URL or ID alone MUST NOT be used. The product spec MUST exist and be
+tagged before its engineering spec is created. An engineering spec MUST NOT
+redefine the "what" it inherits: problem, scope, success criteria, and binding
+decisions belong to the product spec. A technical architecture document SHOULD
 be produced for non-trivial features; when it exists it MUST be linked from the
-engineering spec, but its absence MUST NOT block the engineering spec.
+engineering spec, also pinned by commit/tag, but its absence MUST NOT block the
+engineering spec.
+
+Every engineering spec MUST open with an inheritance section in exactly this
+format:
+
+```
+## Inheritance from Product Spec
+- Product Spec: <title> — <URL>
+- Pinned version: <commit/tag>
+- Architecture doc: <none | URL + commit/tag>
+- Inherited binding decisions: <short list>
+- Scope of this spec: <slice implemented by this repo>
+- Divergences: <none | link to amendment>
+```
 
 Rationale: traceability from product intent to technical execution keeps
 decisions auditable and lets any change be traced back to the need that
-justified it. Making the product spec mandatory prevents engineering work
+justified it. Pinning the version is what guarantees that every team implements
+the same version of the feature instead of divergent readings of a spec that
+changed mid-flight. Making the product spec mandatory prevents engineering work
 without an agreed problem; keeping the architecture doc optional avoids blocking
-delivery on ceremony when the design is trivial.
+delivery on ceremony when the design is trivial. Enforcing a single inheritance
+format keeps the link machine-checkable and uniform across every repository.
+
+### No Silent Divergence
+When a technical need contradicts something inherited from the product spec —
+scope, success criteria, or a binding decision — the divergence MUST NOT be
+implemented silently in code. It MUST be raised as an amendment in the product
+repository and recorded in the `Divergences` field of the engineering spec's
+inheritance section, linking to that amendment. Once the amendment is approved
+and produces a new tag, the engineering spec's `Pinned version` MUST be updated
+to it. A technical difference that contradicts nothing inherited is not a
+divergence but an implementation decision, and MUST live in the engineering spec.
+
+Rationale: in a federated model where the product spec is the single source of
+truth, a silent code deviation makes intent and implementation drift apart with
+no audit trail. Forcing divergences through amendments keeps the spec
+authoritative and every decision traceable back to an agreed change.
 
 ### Commit Messages
 Commits MUST follow Conventional Commits format: `<type>: <description>`.
