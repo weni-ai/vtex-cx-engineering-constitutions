@@ -86,3 +86,16 @@ elements outside the microfrontend boundary MUST NOT occur.
 Rationale: explicit contracts make integration predictable and allow
 independent evolution of host and module. DOM encapsulation prevents fragile
 coupling.
+
+## Quality Standards
+
+### Linting and Formatting
+All code MUST pass the project's ESLint configuration without errors before
+merge. Projects MUST use `@weni/eslint-config` from
+https://github.com/weni-ai/eslint-config as their base configuration. Formatting
+MUST be enforced through the configured tooling; style debates MUST NOT occur in
+code review.
+
+Rationale: a shared ESLint configuration ensures consistency across all frontend
+projects. Automated enforcement eliminates subjective discussions and guarantees
+a uniform codebase.
