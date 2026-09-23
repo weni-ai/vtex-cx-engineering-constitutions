@@ -67,8 +67,7 @@ maintainable. Clear naming conventions for props, events, and state reduce
 integration errors and make component interfaces self-documenting.
 
 ### Styling Standards
-Inline styles MUST NOT be used; all styles MUST be centralized in external
-stylesheets or scoped component styles. CSS selectors MUST use classes only; IDs
+CSS selectors MUST use classes only; IDs
 MUST be reserved for JavaScript targeting when no alternative exists. Nested
 selectors SHOULD be avoided to preserve specificity control and readability.
 Design system tokens (colors, spacing, typography) MUST be used instead of
