@@ -110,7 +110,7 @@ solution. State MUST NOT be duplicated across components or stores. Related
 state SHOULD be grouped in logical objects or modules. Local component state
 SHOULD be preferred when the data does not need to be shared.
 
-Rationale: centralized, deduplicated state prevents synchronization bugs and
+Rationale: centralized, duplicated state prevents synchronization bugs and
 makes data flow traceable. Modular state organization mirrors feature boundaries
 and simplifies testing.
 
