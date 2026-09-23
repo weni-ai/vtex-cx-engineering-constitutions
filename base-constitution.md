@@ -89,3 +89,22 @@ Rationale: in a federated model where the product spec is the single source of
 truth, a silent code deviation makes intent and implementation drift apart with
 no audit trail. Forcing divergences through amendments keeps the spec
 authoritative and every decision traceable back to an agreed change.
+
+### Commit Messages
+Commits MUST follow Conventional Commits format: `<type>: <description>`.
+Allowed types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. The
+description MUST be imperative, specific, and no longer than 50 characters.
+Commits MUST be atomic: one logical change per commit.
+
+Rationale: conventional commits enable automated changelog generation and
+semantic versioning. Atomic commits simplify bisecting, reverting, and reviewing.
+
+### Changelog Maintenance
+Public libraries MUST maintain a changelog following Keep a Changelog format.
+Every user-facing change MUST appear in the changelog under the appropriate
+category (Added, Changed, Deprecated, Removed, Fixed, Security). Version bumps
+MUST follow SemVer.
+
+Rationale: a well-maintained changelog communicates impact to consumers and
+serves as release documentation. SemVer alignment ensures predictable upgrade
+expectations.

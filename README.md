@@ -8,10 +8,11 @@ combinadas para gerar a constitution de cada projeto, no formato do
 ## Estrutura
 
 ```
-base-constitution.md            # engenharia — vale para todos os projetos
-backend/base-constitution.md    # específica de backend
-frontend/base-constitution.md   # específica de frontend
-cloud/base-constitution.md      # específica de cloud
+base-constitution.md                      # engenharia — vale para todos os projetos
+backend/base-constitution.md              # específica de backend
+frontend/base-constitution.md             # específica de frontend (regras gerais)
+frontend-platform/base-constitution.md    # específica de frontend CX Platform (microfrontends)
+cloud/base-constitution.md                # específica de cloud
 ```
 
 O nome do arquivo é sempre `base-constitution.md`. O escopo vem do caminho: a
