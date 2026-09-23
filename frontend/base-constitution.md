@@ -114,7 +114,7 @@ broken UX. Users must always know what is happening and never be left in limbo.
 API calls MUST be encapsulated in dedicated service modules separate from
 components. Error handling MUST be explicit; API errors MUST NOT surface as
 unhandled exceptions. Loading and error states MUST be tracked and reflected in
-the UI. Sensitive data MUST NOT be logged or exposed in error messages.
+the UI.
 
 Rationale: separating API logic from presentation enables reuse, simplifies
 testing, and keeps components focused on rendering. Explicit error handling
