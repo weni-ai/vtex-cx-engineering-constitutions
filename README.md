@@ -1,9 +1,15 @@
 # VTEX CX Engineering Constitutions
 
-Fonte canônica das **constitutions base** da engenharia VTEX CX. Este
-repositório não é a constitution de nenhum projeto: ele guarda as bases que são
-combinadas para gerar a constitution de cada projeto, no formato do
-[Spec Kit](https://github.com/github/spec-kit).
+Fonte canônica da engenharia VTEX CX no formato do
+[Spec Kit](https://github.com/github/spec-kit). Este repositório não é a
+constitution nem o workflow de nenhum projeto: ele guarda as **regras** que são
+combinadas para gerar a constitution de cada projeto, e o **processo** que os
+projetos instalam como preset do Spec Kit.
+
+| Camada | O que define | Onde vive |
+|--------|--------------|-----------|
+| Regras | o que todo projeto deve cumprir | `base-constitution.md` + `<domínio>/base-constitution.md` |
+| Processo | como as specs são produzidas | `speckit/vtex-cx-engineering/` |
 
 ## Estrutura
 
@@ -13,10 +19,11 @@ backend/base-constitution.md              # específica de backend
 frontend/base-constitution.md             # específica de frontend (regras gerais)
 frontend-platform/base-constitution.md    # específica de frontend CX Platform (microfrontends)
 cloud/base-constitution.md                # específica de cloud
+speckit/vtex-cx-engineering/              # preset do Spec Kit (comando + templates)
 ```
 
-O nome do arquivo é sempre `base-constitution.md`. O escopo vem do caminho: a
-raiz rege toda a engenharia, cada pasta cobre um domínio.
+O nome do arquivo da constitution é sempre `base-constitution.md`. O escopo vem
+do caminho: a raiz rege toda a engenharia, cada pasta cobre um domínio.
 
 ## Como as bases são combinadas
 
@@ -58,6 +65,31 @@ Busca manual das bases, se necessário:
 
 ```bash
 gh repo clone weni-ai/vtex-cx-engineering-constitutions /tmp/constitutions -- --depth 1 --branch main
+```
+
+## O preset `vtex-cx-engineering`
+
+A constitution diz **o que** o projeto deve cumprir, mas não muda **como** o Spec
+Kit produz as specs. O `/speckit.specify` original escreve uma spec de produto por
+instrução explícita do comando, e desfaz conteúdo técnico num loop de validação —
+nenhuma constitution vence isso.
+
+O preset em `speckit/vtex-cx-engineering/` resolve essa parte: substitui o comando
+`speckit.specify` e o `spec-template` para produzir a Engineering Spec do Golden
+Path, com gate bloqueante na Product Spec fixada por commit/tag.
+
+```bash
+specify preset add vtex-cx-engineering --from <release deste repo>
+specify preset resolve spec-template
+```
+
+Detalhes, camadas e manutenção em
+[speckit/vtex-cx-engineering/README.md](speckit/vtex-cx-engineering/README.md).
+
+Setup completo de um repositório, na ordem:
+
+```
+specify init  →  setup-engineering (constitution)  →  preset add (processo)  →  /speckit.constitution (especificidades do repo)
 ```
 
 ## Como editar as bases
