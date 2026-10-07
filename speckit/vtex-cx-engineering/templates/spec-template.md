@@ -8,8 +8,6 @@
 
 **Status**: Draft
 
-**SDD Path**: [Full | Lite]
-
 <!--
   This is an ENGINEERING spec. It answers HOW this repository implements the
   slice of a feature it owns.

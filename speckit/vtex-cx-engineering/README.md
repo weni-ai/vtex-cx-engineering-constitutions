@@ -20,7 +20,7 @@ que é o mecanismo do Spec Kit para redefinir comando e template juntos.
 
 | Arquivo | Estratégia | Efeito |
 |---------|-----------|--------|
-| `commands/speckit.specify.md` | replace | Gate bloqueante da Product Spec, constitution como entrada vinculante, escolha de trilho Full/Lite e checklist de conformidade de engenharia |
+| `commands/speckit.specify.md` | replace | Gate bloqueante da Product Spec, constitution como entrada vinculante e checklist de conformidade de engenharia |
 | `templates/spec-template.md` | replace | Seção de herança + seções técnicas: escopo no repo, estado atual, abordagem, contratos, dados e migrações, carga de pico, observabilidade, testes, rollout, alinhamento com a constitution e divergências |
 | `templates/plan-additions.md` | append | Acrescenta herança, sequência de entrega, plano de carga de pico, observabilidade, rollout e gate de divergência ao `plan-template` oficial — sem manter cópia dele |
 

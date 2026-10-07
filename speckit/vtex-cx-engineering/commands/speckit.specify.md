@@ -112,20 +112,11 @@ This document is a **binding input to the spec**, not background reading. Treat 
 
 If the constitution does not exist, stop and tell the user to run the `setup-engineering` skill first. Do not write an engineering spec without one.
 
-## Gate 2 — SDD Path
-
-Decide between **Full** (`specify → plan → tasks → analyze → implement`) and **Lite** (`specify → implement`). The choice comes from the complexity of the solution, not the size of the delivery or the deadline:
-
-- **Full** — the solution still needs to be designed.
-- **Lite** — the implementation path is already evident from the Product Spec.
-
-Propose one based on what you read, state your reason in one line, and let the user override. Record the result in the `SDD Path` field of the spec. Both paths require the full spec and the full inheritance section; only the depth of the cycle changes.
-
 ## Outline
 
 The text the user typed after `__SPECKIT_COMMAND_SPECIFY__` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
-Given that feature description, and only after Gates 0 through 2 have passed, do this:
+Given that feature description, and only after Gates 0 and 1 have passed, do this:
 
 1. **Generate a concise short name** (2-4 words) for the feature:
    - Analyze the feature description and extract the most meaningful keywords
@@ -351,10 +342,9 @@ Report completion to the user with:
 - `SPECIFY_FEATURE_DIRECTORY` — the feature directory path
 - `SPEC_FILE` — the spec file path
 - The inherited Product Spec and its pinned version, so the traceability is visible without opening the file
-- The SDD path chosen (Full or Lite) and why
 - Checklist results summary
 - Any divergence raised
-- Readiness for the next phase: `__SPECKIT_COMMAND_PLAN__` for Full, `__SPECKIT_COMMAND_IMPLEMENT__` for Lite
+- Readiness for the next phase: `__SPECKIT_COMMAND_PLAN__` or `__SPECKIT_COMMAND_IMPLEMENT__`, at the developer's choice
 
 **NOTE:** Branch creation is handled by the `before_specify` hook (git extension). Spec directory and file creation are always handled by this command.
 
@@ -381,4 +371,4 @@ The definition of done is the feature in production satisfying the **inherited**
 - [ ] The constitution was loaded and treated as binding, with every departure justified in the spec
 - [ ] Specification written to `SPEC_FILE` and validated against the engineering quality checklist
 - [ ] Extension hooks dispatched or skipped according to the rules above
-- [ ] Completion reported with feature directory, spec file path, inherited version, SDD path and checklist results
+- [ ] Completion reported with feature directory, spec file path, inherited version and checklist results
