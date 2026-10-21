@@ -9,13 +9,16 @@
 **Status**: Draft
 
 <!--
-  This is an ENGINEERING spec. It answers HOW this repository implements the
-  slice of a feature it owns.
+  This is an ENGINEERING spec. It answers HOW this repository implements a
+  change.
 
-  It MUST NOT restate the what: problem, scope rationale, success criteria,
-  user stories and binding decisions are inherited from the Product Spec and
-  are not repeated here. A need that contradicts anything inherited is a
+  With a Product Spec, it MUST NOT restate the what: problem, scope rationale,
+  success criteria, user stories and binding decisions are inherited and are
+  not repeated here. A need that contradicts anything inherited is a
   divergence, not a decision — see the Divergences section.
+
+  Without a Product Spec, the what is limited to the problem and acceptance
+  criteria of the origin section.
 
   Remove any section that genuinely does not apply. Do not leave it as "N/A".
 -->
@@ -26,7 +29,8 @@
   Required by the root constitution, in exactly this format. The pinned
   version MUST be an immutable commit or tag; a mutable URL or ID alone is not
   acceptable. The architecture doc is optional and only exists when the feature
-  went through the architecture stage.
+  went through the architecture stage. Use this block only when the change has
+  a Product Spec; otherwise use the origin block below.
 -->
 
 - Product Spec: [title] — [URL]
@@ -36,12 +40,25 @@
 - Scope of this spec: [slice implemented by this repo]
 - Divergences: [none | link to amendment]
 
+## Origin Without Product Spec
+
+<!--
+  Use this block instead of the inheritance block when the change has no
+  Product Spec (a hotfix, a fix, technical debt). Keep exactly one of the two
+  and delete the other. Required by the root constitution, in exactly this
+  format.
+-->
+
+- Product Spec: none
+- Problem: [what is wrong or missing, in one or two sentences]
+- Acceptance criteria: [observable outcomes that prove the change is done]
+
 ## Scope in This Repository
 
 <!--
-  The boundary of this spec inside this service. Frontend and backend derive
-  separate specs from the same Product Spec, so state what this repo owns and
-  what it expects another repo to deliver.
+  The boundary of this spec inside this service. Frontend and backend write
+  separate specs (from the same Product Spec, when there is one), so state
+  what this repo owns and what it expects another repo to deliver.
 -->
 
 **This repository implements**: [capabilities delivered here]
@@ -136,14 +153,15 @@
 ## Test Strategy
 
 <!--
-  Acceptance is measured against the success criteria inherited from the
-  Product Spec. Do not restate those criteria here — map them to the tests
-  that prove them in this repository.
+  With a Product Spec, acceptance is measured against its inherited success
+  criteria: do not restate them here — map them to the tests that prove them
+  in this repository. Without a Product Spec, map the acceptance criteria of
+  the origin section; for a fix, include the test that reproduces the bug.
 -->
 
-| Inherited success criterion | How this repository proves it |
-|------------------------------|-------------------------------|
-| [criterion from the Product Spec] | [the flow test or check that covers it] |
+| Success / acceptance criterion | How this repository proves it |
+|--------------------------------|-------------------------------|
+| [inherited success criterion, or acceptance criterion from the origin section] | [the flow test or check that covers it] |
 
 **Flow coverage**: [the complete use cases covered end to end, from input to resulting effect]
 
@@ -182,7 +200,8 @@
   Only for a technical need that contradicts something inherited: scope, a
   success criterion, or a binding decision. The divergence MUST NOT be
   implemented. Raise an amendment in the product repository, link it here, and
-  update the Pinned version once the amendment produces a new tag.
+  update the Pinned version once the amendment produces a new tag. Remove this
+  section when there is no Product Spec: nothing is inherited.
 -->
 
 [none]
