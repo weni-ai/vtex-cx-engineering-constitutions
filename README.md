@@ -76,7 +76,8 @@ nenhuma constitution vence isso.
 
 O preset em `speckit/vtex-cx-engineering/` resolve essa parte: substitui o comando
 `speckit.specify` e o `spec-template` para produzir a Engineering Spec do Golden
-Path, com gate bloqueante na Product Spec fixada por commit/tag.
+Path, com a Product Spec fixada por commit/tag quando existir, ou com uma seção de
+origem própria quando a mudança nasce na engenharia.
 
 ```bash
 specify preset add vtex-cx-engineering --from <release deste repo>

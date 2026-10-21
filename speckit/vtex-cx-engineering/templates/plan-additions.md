@@ -10,10 +10,11 @@
 <!--
   Carried over from the Engineering Spec so the plan is traceable on its own.
   These values MUST match spec.md exactly; if they drifted, the spec is the
-  source and the plan is wrong.
+  source and the plan is wrong. When the spec has no Product Spec, write
+  `Product Spec: none` and drop the Pinned version and Architecture doc lines.
 -->
 
-- Product Spec: [title] — [URL]
+- Product Spec: [title — URL | none]
 - Pinned version: [commit/tag]
 - Architecture doc: [none | URL + commit/tag]
 - Engineering Spec: [path to spec.md]
@@ -23,7 +24,7 @@
 <!--
   The order of execution, not a restatement of the technical approach. Call out
   what must land before what, and anything that must be coordinated with
-  another repository implementing the same Product Spec.
+  another repository (implementing the same Product Spec, when there is one).
 -->
 
 1. [step] — [why it must come at this point]
@@ -65,7 +66,8 @@
   A technical need that contradicts something inherited is a divergence and
   MUST NOT be planned into implementation. Raise an amendment in the product
   repository first, record it in the spec's Divergences field, and update the
-  pinned version once the amendment is tagged.
+  pinned version once the amendment is tagged. Remove this section when the
+  spec has no Product Spec: nothing is inherited.
 -->
 
 - Divergences found while planning: [none | the amendment raised and its link]

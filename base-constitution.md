@@ -43,18 +43,22 @@ Rationale: consumers depend on stable contracts; explicit versioning and
 deprecation give them a predictable path to adapt without outages.
 
 ### Specification Traceability
-Every engineering spec MUST derive from exactly one approved product spec and
-MUST reference it through an immutable, pinned version (commit or tag) — a
-mutable URL or ID alone MUST NOT be used. The product spec MUST exist and be
-tagged before its engineering spec is created. An engineering spec MUST NOT
-redefine the "what" it inherits: problem, scope, success criteria, and binding
-decisions belong to the product spec. A technical architecture document SHOULD
-be produced for non-trivial features; when it exists it MUST be linked from the
-engineering spec, also pinned by commit/tag, but its absence MUST NOT block the
-engineering spec.
+An engineering spec either derives from a product spec or originates in
+engineering. Both are regular paths of the process; neither requires a
+justification, and either may follow the full or the lite cycle.
 
-Every engineering spec MUST open with an inheritance section in exactly this
-format:
+When the change has a product spec, the engineering spec MUST derive from
+exactly one approved product spec and MUST reference it through an immutable,
+pinned version (commit or tag) — a mutable URL or ID alone MUST NOT be used.
+The product spec MUST exist and be tagged before its engineering spec is
+created. An engineering spec MUST NOT redefine the "what" it inherits: problem,
+scope, success criteria, and binding decisions belong to the product spec. A
+technical architecture document SHOULD be produced for non-trivial features;
+when it exists it MUST be linked from the engineering spec, also pinned by
+commit/tag, but its absence MUST NOT block the engineering spec.
+
+An engineering spec derived from a product spec MUST open with an inheritance
+section in exactly this format:
 
 ```
 ## Inheritance from Product Spec
@@ -66,14 +70,27 @@ format:
 - Divergences: <none | link to amendment>
 ```
 
-Rationale: traceability from product intent to technical execution keeps
-decisions auditable and lets any change be traced back to the need that
-justified it. Pinning the version is what guarantees that every team implements
-the same version of the feature instead of divergent readings of a spec that
-changed mid-flight. Making the product spec mandatory prevents engineering work
-without an agreed problem; keeping the architecture doc optional avoids blocking
-delivery on ceremony when the design is trivial. Enforcing a single inheritance
-format keeps the link machine-checkable and uniform across every repository.
+An engineering spec without a product spec states its own "what" and MUST open
+with an origin section in exactly this format:
+
+```
+## Origin Without Product Spec
+- Product Spec: none
+- Problem: <what is wrong or missing, in one or two sentences>
+- Acceptance criteria: <observable outcomes that prove the change is done>
+```
+
+Rationale: traceability from intent to technical execution keeps decisions
+auditable and lets any change be traced back to the need that justified it.
+When the change is born in product, the product spec is that origin, and
+pinning its version guarantees that every team implements the same version of
+the feature instead of divergent readings of a spec that changed mid-flight.
+When the change is born in engineering — a hotfix, a fix, technical debt — the
+engineering spec itself is the origin, and its problem and acceptance criteria
+are what the change is verified against. Keeping the architecture doc optional
+avoids blocking delivery on ceremony when the design is trivial. Enforcing a
+fixed opening format for each path keeps the origin machine-checkable and
+uniform across every repository.
 
 ### No Silent Divergence
 When a technical need contradicts something inherited from the product spec —
@@ -84,6 +101,8 @@ inheritance section, linking to that amendment. Once the amendment is approved
 and produces a new tag, the engineering spec's `Pinned version` MUST be updated
 to it. A technical difference that contradicts nothing inherited is not a
 divergence but an implementation decision, and MUST live in the engineering spec.
+This principle applies only to engineering specs derived from a product spec;
+a spec without one inherits nothing it could diverge from.
 
 Rationale: in a federated model where the product spec is the single source of
 truth, a silent code deviation makes intent and implementation drift apart with

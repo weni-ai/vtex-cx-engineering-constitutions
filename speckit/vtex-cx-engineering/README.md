@@ -20,8 +20,8 @@ que é o mecanismo do Spec Kit para redefinir comando e template juntos.
 
 | Arquivo | Estratégia | Efeito |
 |---------|-----------|--------|
-| `commands/speckit.specify.md` | replace | Gate bloqueante da Product Spec, constitution como entrada vinculante e checklist de conformidade de engenharia |
-| `templates/spec-template.md` | replace | Seção de herança + seções técnicas: escopo no repo, estado atual, abordagem, contratos, dados e migrações, carga de pico, observabilidade, testes, rollout, alinhamento com a constitution e divergências |
+| `commands/speckit.specify.md` | replace | Gate de origem (Product Spec fixada ou ausência declarada), constitution como entrada vinculante e checklist de conformidade de engenharia |
+| `templates/spec-template.md` | replace | Seção de herança ou de origem sem Product Spec + seções técnicas: escopo no repo, estado atual, abordagem, contratos, dados e migrações, carga de pico, observabilidade, testes, rollout, alinhamento com a constitution e divergências |
 | `templates/plan-additions.md` | append | Acrescenta herança, sequência de entrega, plano de carga de pico, observabilidade, rollout e gate de divergência ao `plan-template` oficial — sem manter cópia dele |
 
 O `append` no plano é deliberado: o template oficial continua sendo a base, então
@@ -43,6 +43,22 @@ Ele se recusa a gerar a spec quando:
 
 Isso é o Princípio de Traceability deixando de ser recomendação e passando a ser
 bloqueio.
+
+### Sem Product Spec
+
+Nem toda mudança nasce no produto. Hotfix, fix e dívida técnica podem não ter
+Product Spec, e isso é um caminho normal do processo, sem justificativa. Quando o
+desenvolvedor responde que não há Product Spec, o comando pula a resolução por
+`git` e a spec abre com `## Origin Without Product Spec`: `Product Spec: none`, o
+problema e os critérios de aceite. A estratégia de testes mapeia esses critérios,
+e a seção de divergências sai, porque não há herança.
+
+O agente nunca conclui sozinho que não há Product Spec: ele pergunta, ou usa o que
+a entrada do usuário já disse. Uma Product Spec que existe mas não pode ser fixada
+continua sendo bloqueio, não ausência.
+
+Os dois caminhos de origem valem tanto para o SDD Full quanto para o SDD Lite; o
+ciclo continua sendo escolhido pela complexidade.
 
 ## Instalação num repositório
 
