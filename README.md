@@ -19,6 +19,8 @@ backend/base-constitution.md              # específica de backend
 frontend/base-constitution.md             # específica de frontend (regras gerais)
 frontend-platform/base-constitution.md    # específica de frontend CX Platform (microfrontends)
 cloud/base-constitution.md                # específica de cloud
+cloud-terraform/base-constitution.md      # específica de Terraform (Infra 3.0 / AWS IaC)
+cloud-kubernetes/base-constitution.md     # específica de Kubernetes (GitOps / Kustomize)
 speckit/vtex-cx-engineering/              # preset do Spec Kit (comando + templates)
 ```
 
