@@ -4,7 +4,8 @@ Backend engineering principles that specialize the root constitution for
 server-side projects. These principles MUST NOT contradict the root; they add
 domain-specific rules. Principles are declarative and testable, stated with
 `MUST` / `SHOULD` and an explicit rationale. Stack, tooling, and paths belong to
-the project layer, not here.
+the project layer, not here — except when a specific class, function, or
+configuration is prohibited for security reasons, in which case it MAY be named.
 
 ## Core Principles
 
@@ -20,6 +21,34 @@ Rationale: clients run outside the server's control and can be inspected,
 modified, or bypassed. Treating external input as untrusted until validated is
 what prevents injection, data corruption, and privilege-escalation attacks that
 client-side checks alone can never stop.
+
+### Explicit, Scoped Authorization
+Every endpoint MUST declare an explicit permission that verifies the caller is
+allowed to perform that action on that specific resource — identity alone MUST
+NOT be treated as authorization. Access MUST be denied by default: an endpoint
+that declares no permission, or declares an empty one, MUST be rejected rather
+than left open. In the rare case an endpoint must be reachable without an
+authenticated user, it MUST use a permission dedicated to that endpoint, named
+for the reason it is open and implementing the check that replaces user identity
+(such as a webhook signature or an internal token), and the justification MUST
+be recorded in the engineering spec.
+
+In Django REST Framework, `IsAuthenticated` and `AllowAny` MUST NOT be used under
+any circumstance: not in `permission_classes`, not in the `@permission_classes`
+decorator, not in `DEFAULT_PERMISSION_CLASSES`, not composed with other
+permissions through `&` or `|`, and not as a base class. A custom permission
+whose check unconditionally grants access is equivalent to `AllowAny` and is
+equally forbidden. `DEFAULT_PERMISSION_CLASSES` MUST be set explicitly, because
+when it is omitted the framework falls back to `AllowAny`.
+
+Rationale: `IsAuthenticated` only proves that a caller has a valid session, not
+that they may touch a given project or record, so it silently opens every
+resource to any logged-in user of any tenant. `AllowAny` removes the check
+entirely, and it is also what the framework applies when no default is
+configured, so an omission becomes a public endpoint. Forbidding both by name
+makes the rule mechanically checkable in review and CI, and forcing open
+endpoints through a dedicated, named permission keeps every exception visible
+and tied to the check that justifies it.
 
 ### Fail Gracefully and Predictably
 Every external dependency will eventually fail: networks fluctuate, databases
