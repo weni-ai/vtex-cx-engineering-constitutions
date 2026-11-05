@@ -100,7 +100,10 @@ specify init  →  setup-engineering (constitution)  →  preset add (processo) 
 - Escreva princípios **declarativos e testáveis**, com `MUST` / `SHOULD` e
   rationale explícito.
 - Não inclua stack, nome de serviço ou caminho de um projeto específico — isso
-  pertence à camada do projeto.
+  pertence à camada do projeto. A única exceção é a proibição de uma classe,
+  função ou configuração específica por motivo de segurança (ex.: as classes de
+  permissão `IsAuthenticated` e `AllowAny` do Django REST Framework), que pode
+  ser nomeada na base.
 - Regra que valha para mais de um domínio pertence à raiz, não duplicada nas
   pastas.
 - Mudança em uma base afeta todos os projetos que a usam: abra PR e sinalize o
