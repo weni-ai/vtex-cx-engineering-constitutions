@@ -70,13 +70,12 @@ identity, and data protection. Unpinned modules and providers make two applies
 of the same commit able to pull different code, which destroys reproducibility.
 
 ### Small Reversible Changes
-Each pull request MUST serve a single stated purpose. The engineering spec MUST
-describe how to roll the change back. Unrelated refactors, renames, or
-reformatting MUST NOT ride along with an infrastructure change.
+Each infrastructure pull request MUST keep its blast radius small and
+reversible, and the engineering spec MUST describe how to roll the change back.
 
-Rationale: a multi-purpose infrastructure PR hides risk inside noise. Small,
-reversible units keep review honest and make an incident response a revert
-instead of a reconstruction.
+Rationale: infrastructure changes affect live state that cannot always be undone
+by reverting code alone. Keeping units small and reversible makes incident
+response a controlled rollback instead of a manual reconstruction.
 
 ### Secrets Outside Code and State
 Secrets MUST NOT appear in Terraform source, committed variable files, outputs,

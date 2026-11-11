@@ -29,10 +29,83 @@ common and most damaging breaches; prevention is far cheaper than remediation.
 ### Observability
 Logs MUST be structured and MUST never contain secrets or sensitive personal
 data. Errors MUST be traceable across components through correlation or trace
-identifiers.
+identifiers. Errors MUST NOT be silently swallowed; caught failures MUST either
+be handled explicitly as part of expected control flow or recorded with
+structured context.
 
 Rationale: structured, privacy-safe telemetry is what makes incidents
-diagnosable without creating new data-exposure risks.
+diagnosable without creating new data-exposure risks, while forbidding silent
+catch-all handlers prevents failures from disappearing without a trace.
+
+### Code Clarity and Language
+All code, identifiers, comments, and technical documentation MUST be written in
+English; domain-specific terms or acronyms that only carry meaning in their
+original language MAY remain untranslated. Code MUST prioritize clarity over
+brevity or cleverness so that what happens is evident where it is written.
+Comments MUST explain *why* a non-obvious decision was made — the constraint,
+trade-off, or external quirk behind it — and MUST NOT restate *what* the code
+already expresses; code that needs a comment to explain what it does SHOULD be
+rewritten to say it directly. Dead branches and commented-out code MUST NOT be
+committed.
+
+Rationale: a shared language and self-explanatory code let any engineer across
+teams read, review, and maintain a repository without hidden context. Comments
+that capture reasoning preserve constraints the code cannot express on its own,
+whereas narrative comments and dead code drift out of sync and mislead readers.
+
+### Proportional Design
+Every change MUST use the simplest design that satisfies the current
+specification within the repository's established architecture. Abstractions,
+indirection layers, extension points, or configuration flags MUST NOT be
+introduced for hypothetical future needs when only a single concrete use case
+exists, unless required by an architectural boundary of the project. Every
+decision encoded in code or configuration — a business rule, a shared default,
+an environment value — MUST have a single source of truth within a repository,
+whereas incidental duplication MAY remain local when extracting it would create
+premature coupling. Root causes MUST be fixed rather than masked with
+workarounds, and redundant checks SHOULD NOT repeat invariants already enforced
+by types, schemas, or an upstream boundary.
+
+Rationale: speculative abstractions, pass-through wrappers, and redundant
+defensive checks add cognitive and maintenance cost without solving a real
+problem today. Giving every encoded decision a single source of truth prevents
+behavioral and environment drift, while waiting for concrete use cases before
+abstracting keeps coupling low.
+
+### Contained Changes
+A change MUST be limited to the context it was asked to address. Refactoring,
+renaming, reformatting, or behavior adjustments outside that context MUST NOT
+ride along; each belongs to its own change. This principle governs the scope of
+a change as a whole; the requirement that each commit be atomic governs how that
+change is divided internally, and a change that stays within scope MAY still
+span several commits.
+
+Rationale: a change that reaches beyond its stated scope is a change nobody
+reviewed on purpose. It hides the intended fix inside unrelated edits, makes the
+diff expensive to read, and turns a revert into a choice between losing the fix
+and keeping an unrelated regression.
+
+### Verification Integrity
+Automated checks and tests MUST verify real behavior and MUST fail when the
+behavior, contract, or guard they cover regresses. A test MUST NOT mock, stub,
+or bypass the subject, permission, filter, or boundary contract it claims to
+prove. Automated test suites that run on every change MUST be deterministic
+and hermetic: external networks, third-party APIs, and shared infrastructure
+outside the test harness MUST be stubbed or isolated at the boundary rather
+than called live. Test suites that intentionally exercise real dependencies
+(integration, end-to-end, contract) MAY reach them when they are labeled as
+such, run in a dedicated stage separate from the per-change suite, and never
+target production resources. Read-only validation that a domain requires
+against live state, such as an infrastructure plan, is governed by that
+domain's constitution and is not a test suite under this rule. Failing checks,
+lint rules, type checks, or coverage gates MUST NOT be silenced or skipped
+without an explicit justification.
+
+Rationale: a green suite that mocks away the mechanism under test, passes
+through regressions, or disables quality gates creates false confidence where
+defects hide. Hermetic boundaries keep the per-change suite fast, reproducible,
+and independent of external outages or shared state, while a separately labeled
+integration stage still proves the real wiring that stubs cannot.
 
 ### Versioned Contracts
 Any change to a public interface MUST be versioned following SemVer. Changes MUST
