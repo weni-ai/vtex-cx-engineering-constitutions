@@ -11,27 +11,42 @@ configuration is prohibited for security reasons, in which case it MAY be named.
 
 ### Never Trust the Client
 Everything that reaches the server from outside — a mobile app, a web page, a
-third-party webhook, or another API — MUST be treated as potentially malicious,
-incomplete, or incorrect until it is rigorously validated. Every external input
-MUST be validated for type, format, range, and business rules at the server
-boundary before use. Authorization MUST be enforced on the server for every
-request, regardless of any check already performed by the client.
+third-party webhook, a queue message, or another API — MUST be treated as
+potentially malicious, incomplete, or incorrect until it is rigorously
+validated. Every external input MUST be validated for type, format, range, and
+business rules at the server boundary before use, and MUST NOT be interpolated
+directly into queries, commands, templates, file paths, or unvalidated outbound
+URLs. Inbound webhooks, callbacks, and tokens MUST be verified for authenticity,
+expiry, and replay protection before any side effect, using server-fixed
+algorithms and constant-time secret comparison. Authorization MUST be enforced
+on the server for every request, regardless of any check already performed by
+the client.
 
-Rationale: clients run outside the server's control and can be inspected,
-modified, or bypassed. Treating external input as untrusted until validated is
-what prevents injection, data corruption, and privilege-escalation attacks that
-client-side checks alone can never stop.
+Rationale: clients and external producers run outside the server's control and
+can be inspected, modified, replayed, or bypassed. Validating inputs,
+parameterizing queries and outbound targets, and verifying cryptographic
+authenticity before side effects prevent injection, SSRF, replay, and
+privilege-escalation attacks that client-side checks can never stop.
 
 ### Explicit, Scoped Authorization
 Every endpoint MUST declare an explicit permission that verifies the caller is
 allowed to perform that action on that specific resource — identity alone MUST
 NOT be treated as authorization. Access MUST be denied by default: an endpoint
 that declares no permission, or declares an empty one, MUST be rejected rather
-than left open. In the rare case an endpoint must be reachable without an
-authenticated user, it MUST use a permission dedicated to that endpoint, named
-for the reason it is open and implementing the check that replaces user identity
-(such as a webhook signature or an internal token), and the justification MUST
-be recorded in the engineering spec.
+than left open. Endpoints MUST expose only the HTTP methods or actions required
+by their contract; unintended verbs on shared handlers or viewsets MUST be
+closed. In the rare case an endpoint must be reachable without an authenticated
+user, it MUST use a permission dedicated to that endpoint, named for the reason
+it is open and implementing the check that replaces user identity (such as a
+webhook signature or an internal token), and the justification MUST be recorded
+in the engineering spec.
+
+Every read, write, and related-resource reference on a scoped entity MUST
+enforce the caller's scope boundary in the data access layer; an omitted or
+empty filter MUST NOT widen a query across scopes, and server-owned ownership or
+role fields MUST NOT be writable from external input. Background workers and
+queue consumers MUST re-verify scope and current state rather than trusting
+message payloads blindly.
 
 In Django REST Framework, `IsAuthenticated` and `AllowAny` MUST NOT be used under
 any circumstance: not in `permission_classes`, not in the `@permission_classes`
@@ -48,18 +63,25 @@ entirely, and it is also what the framework applies when no default is
 configured, so an omission becomes a public endpoint. Forbidding both by name
 makes the rule mechanically checkable in review and CI, and forcing open
 endpoints through a dedicated, named permission keeps every exception visible
-and tied to the check that justifies it.
+and tied to the check that justifies it. Enforcing closed verbs, data-layer
+scope predicates, related-record ownership checks, and worker re-verification
+ensures tenant isolation holds across every entry point, not only at the route
+decorator.
 
 ### Fail Gracefully and Predictably
 Every external dependency will eventually fail: networks fluctuate, databases
 reach connection limits, and third-party APIs go down without warning. Calls to
 external dependencies MUST have explicit timeouts and MUST NOT block indefinitely.
-Failures MUST be handled explicitly and surfaced as consistent, well-defined error
-responses — never as unhandled crashes or leaked internal details.
+Multi-step writes that must succeed or fail together MUST run atomically so a
+partial failure cannot leave persisted state inconsistent or trigger premature
+external side effects. Failures MUST be handled explicitly and surfaced as
+consistent, well-defined error responses — never as unhandled crashes or leaked
+internal details.
 
-Rationale: failure is a certainty, not an edge case. Handling it explicitly and
-predictably keeps partial outages contained and observable instead of letting one
-failing dependency take down the whole system or expose internals to callers.
+Rationale: failure is a certainty, not an edge case. Timeouts, atomic writes,
+and predictable error boundaries keep partial outages contained and observable
+instead of letting a failing dependency corrupt state, take down the system, or
+expose internals to callers.
 
 ### Bounded Retry Over REST
 When data is propagated between services over a REST call, a failure in that
@@ -92,12 +114,38 @@ and MUST live in an external store shared by all instances. The peak load a
 service is expected to sustain MUST be declared in its engineering spec, stated
 as peak and not as average.
 
+Collection queries and list endpoints MUST be bounded through pagination or
+explicit caps and indexed on hot scope and filter paths; N+1 query loops and
+spawning OS processes inside request handlers MUST NOT be introduced.
+Long-running bulk imports, synchronizations, or fan-out work SHOULD execute
+asynchronously and idempotently rather than blocking request handling. Shared
+cache keys for scoped data MUST include the scope identifier (and actor
+identifier when actor-specific), define an explicit TTL, and be invalidated or
+versioned by every write path that mutates the underlying data.
+
 Rationale: capacity is a design input, not something to be discovered during an
 incident. Sizing for average traffic guarantees failure precisely when demand
 matters most, such as a seasonal sales peak. Statelessness is what makes adding
 instances a valid answer to load at all — a service holding state locally can
 only be restarted, not scaled out. Declaring the peak turns scalability from an
-assumption into a number that can be reviewed and tested against.
+assumption into a number that can be reviewed and tested against. Bounded
+queries, background offloading, and scope-isolated caches are what allow those
+instances to sustain the declared peak without exhausting connections, leaking
+cached data across tenants, or serving stale state.
+
+### Backward-Compatible Data Evolution
+Schema changes and data migrations MUST be committed with the code that requires
+them and MUST remain backward-compatible with the currently deployed application
+version so a rollout can be safely rolled back without data loss or downtime.
+Destructive schema changes — such as dropping, renaming, or tightening a column
+still read or written by live instances — MUST follow an expand-and-contract
+sequence across separate deployments unless downtime is explicitly approved in
+the engineering spec.
+
+Rationale: application instances and database migrations rarely switch atomically
+during deploys or rollbacks. Keeping every schema step compatible with the
+previous running version ensures a bad release can be reverted immediately
+without breaking production traffic.
 
 ### Diagnosable Errors
 Every error reported to an error-tracking system MUST carry enough context to be
@@ -114,47 +162,28 @@ exactly the filtering an investigation needs while keeping the report free of
 personal data, which is what the root observability principle requires.
 
 ### Tests Exercise Flows
-Every flow MUST have at least one test covering the complete use case, from input
-to resulting effect. Tests that assert a single method in isolation are allowed
-and SHOULD be used to explore edge cases and input variations that are expensive
-to reach through the whole flow — but they MUST NOT be the only coverage a flow
-has. Every flow MUST cover its success path and its failure paths; an error path
-that no test exercises MUST NOT be considered covered.
+Every flow MUST have at least one test covering the complete use case through
+its real entry point, authorization, and persistence layer, from input to
+resulting effect. Tests that assert a single method in isolation are allowed and
+SHOULD be used to explore edge cases and input variations that are expensive to
+reach through the whole flow — but they MUST NOT be the only coverage a flow
+has. Every flow MUST cover its success path and its failure paths; whenever an
+operation is restricted by role or resource scope, flow tests MUST also cover
+refusal paths proving that unauthenticated, unauthorized, or cross-scope
+requests are rejected and leave persisted state unchanged.
 
 Rationale: a suite made only of isolated method tests can be green while the
-composition of those methods is broken, because the bug lives in how the pieces
-interact rather than inside any one of them. Method-level tests are still the
-cheapest way to cover many inputs, so this rule is additive, not exclusive: keep
-them, and add the flow test that proves the pieces work together. Failure paths
-are where that matters most — they are the least exercised in development and the
-most expensive in production.
+composition of routing, permissions, and queries is broken. Exercising the real
+entry point across happy, error, and refusal paths proves both functional
+correctness and tenant isolation where bugs are most expensive in production.
 
 ### Explicit Over Clever
-What a piece of code does MUST be evident where it happens. Hidden side effects
-and implicit control flow MUST NOT be introduced to save lines. Any literal that
-carries meaning — a threshold, a limit, a timeout, a retry count — MUST be a
-named constant rather than an inline value. A literal that carries no meaning
-beyond its own value, such as an index of 0 or an increment of 1, is exempt.
-Comments MUST explain why a decision was made: the constraint, the trade-off, or
-the non-obvious reason behind it. A comment that restates what the code already
-says is a signal that the code SHOULD be rewritten to say it.
+Hidden side effects and implicit control flow MUST NOT be introduced to save
+lines. Any literal that carries domain or operational meaning — a threshold, a
+limit, a timeout, a retry count — MUST be a named constant rather than an inline
+value; literals that carry no meaning beyond their own value, such as an index
+of `0` or an increment of `1`, are exempt.
 
-Rationale: code is read far more often than it is written, and usually by
-someone without the context that made the clever version feel obvious. An
-unexplained literal is a decision nobody can review, because its origin and its
-safe range are invisible. Keeping comments on the why preserves the information
-the code genuinely cannot carry, without creating a second description of
-behaviour that silently goes stale.
-
-### Contained Changes
-A change MUST be limited to the context it was asked to address. Refactoring,
-renaming, reformatting, or behaviour adjustments outside that context MUST NOT
-ride along; each belongs to its own change. This principle governs the scope of a
-change as a whole; the root requirement that each commit be atomic governs how
-that change is divided internally, and a change that stays within scope MAY still
-span several commits.
-
-Rationale: a change that reaches beyond its stated scope is a change nobody
-reviewed on purpose. It hides the intended fix inside unrelated edits, makes the
-diff expensive to read, and turns a revert into a choice between losing the fix
-and keeping an unrelated regression.
+Rationale: hidden side effects and unexplained magic numbers obscure operational
+limits and safe ranges from reviewers, whereas explicit control flow and named
+constants make behavior auditable at the call site.
