@@ -1,0 +1,44 @@
+schema_version: "1.0"
+
+extension:
+  id: "vtex-cx-review"
+  name: "VTEX CX Adversarial Code Review"
+  version: "0.1.0"
+  description: >-
+    Adversarial post-convergence code review for the VTEX CX Golden Path.
+    Audits the actual git diff against the repository constitution, a
+    domain-agnostic core bar, and domain lenses (backend, frontend,
+    frontend-platform), appending actionable remediation tasks to tasks.md.
+  author: "VTEX CX Engineering"
+  repository: "https://github.com/weni-ai/vtex-cx-engineering-constitutions"
+  category: "code"
+
+requires:
+  speckit_version: ">=1.0.13"
+  tools:
+    - name: "git"
+      required: true
+      description: "Computes merge-base diffs, branch commits, and working-tree changes"
+
+provides:
+  commands:
+    - name: "speckit.vtex-cx-review.run"
+      aliases:
+        - "speckit.cx-review"
+      file: "commands/speckit.vtex-cx-review.run.md"
+      description: "Audit the feature's git diff against the repository constitution and active domain lenses, appending remediation tasks to tasks.md"
+
+hooks:
+  after_converge:
+    command: "speckit.vtex-cx-review.run"
+    optional: true
+    prompt: "Once convergence passes with zero open tasks, run the adversarial code review?"
+    description: "Adversarial code review (security, performance, state/flow integrity, real flow tests) after convergence"
+
+tags:
+  - "vtex-cx"
+  - "engineering"
+  - "code-review"
+  - "security"
+  - "performance"
+  - "governance"

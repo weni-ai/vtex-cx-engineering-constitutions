@@ -9,7 +9,7 @@ projetos instalam como preset do Spec Kit.
 | Camada | O que define | Onde vive |
 |--------|--------------|-----------|
 | Regras | o que todo projeto deve cumprir | `base-constitution.md` + `<domínio>/base-constitution.md` |
-| Processo | como as specs são produzidas | `speckit/vtex-cx-engineering/` |
+| Processo | como as specs são produzidas e revisadas | `speckit/vtex-cx-engineering/` + `speckit/vtex-cx-review/` |
 
 ## Estrutura
 
@@ -22,6 +22,7 @@ cloud/base-constitution.md                # específica de cloud
 cloud-terraform/base-constitution.md      # específica de Terraform (Infra 3.0 / AWS IaC)
 cloud-kubernetes/base-constitution.md     # específica de Kubernetes (GitOps / Kustomize)
 speckit/vtex-cx-engineering/              # preset do Spec Kit (comando + templates)
+speckit/vtex-cx-review/                   # extension do Spec Kit (revisão adversarial pós-converge)
 ```
 
 O nome do arquivo da constitution é sempre `base-constitution.md`. O escopo vem
@@ -89,10 +90,26 @@ specify preset resolve spec-template
 Detalhes, camadas e manutenção em
 [speckit/vtex-cx-engineering/README.md](speckit/vtex-cx-engineering/README.md).
 
+## A extension `vtex-cx-review`
+
+Enquanto o `/speckit-converge` verifica completude contra a spec sem olhar o
+`git`, a extension em `speckit/vtex-cx-review/` roda a **revisão adversarial**
+sobre o `git diff` real usando um núcleo genérico mais lentes por domínio
+(`backend`, `frontend` e `frontend-platform`) ancoradas na constitution do
+projeto, registrando achados acionáveis como `## Phase N: Review` no `tasks.md`
+e conectando-se ao hook `after_converge`.
+
+```bash
+specify extension add --dev /tmp/constitutions/speckit/vtex-cx-review
+```
+
+Detalhes, lentes e gates em
+[speckit/vtex-cx-review/README.md](speckit/vtex-cx-review/README.md).
+
 Setup completo de um repositório, na ordem:
 
 ```
-specify init  →  setup-engineering (constitution)  →  preset add (processo)  →  /speckit.constitution (especificidades do repo)
+specify init  →  setup-engineering (constitution)  →  preset add (spec/plan)  →  extension add (review)  →  /speckit.constitution (especificidades do repo)
 ```
 
 ## Como editar as bases
