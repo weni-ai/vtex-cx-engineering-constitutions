@@ -21,6 +21,8 @@ frontend-platform/base-constitution.md    # específica de frontend CX Platform 
 cloud/base-constitution.md                # específica de cloud
 cloud-terraform/base-constitution.md      # específica de Terraform (Infra 3.0 / AWS IaC)
 cloud-kubernetes/base-constitution.md     # específica de Kubernetes (GitOps / Kustomize)
+ai-models-hypotheses/base-constitution.md # específica de validação de hipóteses (AI Models)
+ai-models-train/base-constitution.md      # específica de pipelines de treino (AI Models)
 speckit/vtex-cx-engineering/              # preset do Spec Kit (comando + templates)
 speckit/vtex-cx-review/                   # extension do Spec Kit (revisão adversarial pós-converge)
 ```
